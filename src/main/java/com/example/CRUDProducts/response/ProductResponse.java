@@ -1,31 +1,42 @@
 package com.example.CRUDProducts.response;
 
+import java.util.List;
+
 public class ProductResponse {
-    private Long id;
-    private String name;
-    private String type;
+    private Long idRes;
+    private String nameRes;
+    private String typeRes;
+    private List<SubProductResponse> subProductsRes;
 
-    public Long getId() {
-        return id;
+    public Long getIdRes() {
+        return idRes;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdRes(Long idRes) {
+        this.idRes = idRes;
     }
 
-    public String getName() {
-        return name;
+    public String getNameRes() {
+        return nameRes;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNameRes(String nameRes) {
+        this.nameRes = nameRes;
     }
 
-    public String getType() {
-        return type;
+    public String getTypeRes() {
+        return typeRes;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypeRes(String typeRes) {
+        this.typeRes = typeRes;
+    }
+
+    public List<SubProductResponse> getSubProductsRes() {
+        return subProductsRes;
+    }
+
+    public void setSubProductsRes(List<SubProductResponse> subProductsRes) {
+        this.subProductsRes = subProductsRes;
     }
 }

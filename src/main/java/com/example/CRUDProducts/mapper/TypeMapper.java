@@ -1,6 +1,5 @@
 package com.example.CRUDProducts.mapper;
 
-import com.example.CRUDProducts.dto.ProductDTO;
 import com.example.CRUDProducts.dto.TypeDTO;
 import com.example.CRUDProducts.entity.Type;
 import com.example.CRUDProducts.response.TypeResponse;
@@ -8,15 +7,20 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface TypeMapper {
     TypeMapper INSTANCE = Mappers.getMapper(TypeMapper.class);
 
-    @Mapping(target = "products", ignore = true)
+    @Mapping(target = "nameDTO", source = "name")
+    @Mapping(target = "productsDTO", source = "products")
     TypeDTO toDTO(Type type);
 
-    @Mapping(target = "products", source = "products")
-    TypeResponse toResponse(TypeDTO typeDTO, List<ProductDTO> products);
+    @Mapping(target = "name", source = "nameDTO")
+    @Mapping(target = "products", source = "productsDTO")
+    Type toEntity(TypeDTO typeDTO);
+
+    @Mapping(target = "nameRes", source = "nameDTO")
+    @Mapping(target = "productsRes", source = "productsDTO")
+    TypeResponse toResponse(TypeDTO typeDTO);
 }

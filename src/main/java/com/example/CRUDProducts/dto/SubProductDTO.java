@@ -3,14 +3,12 @@ package com.example.CRUDProducts.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
-
-public class TypeDTO {
+public class SubProductDTO {
     private Long idDTO;
-    @NotNull(message = "Type name cannot be null")
-    @Size(min = 1, max = 100, message = "Type name must be between 1 and 100 characters")
+
+    @NotNull(message = "SubProduct name cannot be null")
+    @Size(min = 1, max = 100, message = "SubProduct name must be between 1 and 100 characters")
     private String nameDTO;
-    private List<ProductDTO> productsDTO;
 
     public Long getIdDTO() {
         return idDTO;
@@ -26,13 +24,5 @@ public class TypeDTO {
 
     public void setNameDTO(String nameDTO) {
         this.nameDTO = nameDTO;
-    }
-
-    public List<ProductDTO> getProductsDTO() {
-        return productsDTO;
-    }
-
-    public void setProductsDTO(List<ProductDTO> productsDTO) {
-        this.productsDTO = productsDTO;
     }
 }

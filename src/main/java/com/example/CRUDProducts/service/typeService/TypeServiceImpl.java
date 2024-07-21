@@ -1,15 +1,14 @@
 package com.example.CRUDProducts.service.typeService;
 
-import com.example.CRUDProducts.dao.ProductDAO;
+import com.example.CRUDProducts.dao.type.TypeDAO;
 import com.example.CRUDProducts.dto.TypeDTO;
-import com.example.CRUDProducts.exception.ResourceNotFoundException;
 import com.example.CRUDProducts.mapper.ProductMapper;
 import com.example.CRUDProducts.mapper.TypeMapper;
 import com.example.CRUDProducts.dto.ProductDTO;
 import com.example.CRUDProducts.entity.Type;
-import com.example.CRUDProducts.repository.ProductRepository;
 import com.example.CRUDProducts.repository.TypeRepository;
 import com.example.CRUDProducts.response.TypeResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +22,8 @@ public class TypeServiceImpl implements TypeService {
     private TypeRepository typeRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private TypeDAO typeDAO;
 
-    @Autowired
-    private ProductDAO productDAO;
 
     @Autowired
     private TypeMapper typeMapper;
@@ -36,69 +33,50 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public List<TypeResponse> getAllTypes() {
-        List<Type> types = typeRepository.findAll();
-        return types.stream()
-                .map(type -> {
-                    TypeDTO typeDTO = typeMapper.toDTO(type);
-                    TypeResponse typeResponse = typeMapper.toResponse(
-                            typeDTO,
-                            productDAO.findByTypeId(type.getId()).stream()
-                                    .map(productMapper::toDTO)
-                                    .collect(Collectors.toList())
-                    );
-                    return typeResponse;
-                })
-                .collect(Collectors.toList());
+        return typeDAO.getAllTypes();
     }
 
     @Override
-    public TypeResponse getType(Long typeId) {
-        Type type = typeRepository.findById(typeId)
-                .orElseThrow(() -> new RuntimeException("Type not found"));
+    public TypeResponse getType(Long id) {
+        Type type = typeDAO.getTypeById(id).orElseThrow(() -> new RuntimeException("Type not found"));
         TypeDTO typeDTO = typeMapper.toDTO(type);
-
-        List<ProductDTO> products = productRepository.findByTypeId(typeId)
-                .stream()
-                .map(productMapper::toDTO)
-                .collect(Collectors.toList());
-
-        return typeMapper.toResponse(typeDTO, products);
+        return typeMapper.toResponse(typeDTO);
     }
 
     @Override
-    public TypeResponse createType(Type type) {
-        Type createdType = typeRepository.save(type);
-        TypeDTO typeDTO = typeMapper.toDTO(createdType);
-
-        List<ProductDTO> products = productRepository.findByTypeId(createdType.getId())
+    public TypeResponse createType(@Valid TypeDTO typeDTO) {
+        Type type = typeMapper.toEntity(typeDTO);
+        Type savedType = typeRepository.save(type);
+        TypeDTO savedTypeDTO = typeMapper.toDTO(savedType);
+        List<ProductDTO> productDTOs = savedType.getProducts()
                 .stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-
-        return typeMapper.toResponse(typeDTO, products);
+        savedTypeDTO.setProductsDTO(productDTOs);
+        return typeMapper.toResponse(savedTypeDTO);
     }
 
     @Override
-    public TypeResponse updateType(Long id, Type type) {
+    public TypeResponse updateType(Long id,@Valid TypeDTO typeDTO) {
         if (!typeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Type not found with id " + id);
+            throw new RuntimeException("Type not found with id " + id);
         }
-        type.setId(id);
+        typeDTO.setIdDTO(id);
+        Type type = typeMapper.toEntity(typeDTO);
         Type updatedType = typeRepository.save(type);
-        TypeDTO typeDTO = typeMapper.toDTO(updatedType);
-
-        List<ProductDTO> products = productRepository.findByTypeId(updatedType.getId())
+        TypeDTO updatedTypeDTO = typeMapper.toDTO(updatedType);
+        List<ProductDTO> productDTOs = updatedType.getProducts()
                 .stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-
-        return typeMapper.toResponse(typeDTO, products);
+        updatedTypeDTO.setProductsDTO(productDTOs);
+        return typeMapper.toResponse(updatedTypeDTO);
     }
 
     @Override
     public void deleteType(Long id) {
         if (!typeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Type not found with id " + id);
+            throw new RuntimeException("Type not found with id " + id);
         }
         typeRepository.deleteById(id);
     }

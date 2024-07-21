@@ -1,11 +1,8 @@
 package com.example.CRUDProducts.response;
 
-import java.util.List;
-
-public class TypeResponse {
+public class SubProductResponse {
     private Long idRes;
     private String nameRes;
-    private List<ProductResponse> productsRes;
 
     public Long getIdRes() {
         return idRes;
@@ -21,13 +18,5 @@ public class TypeResponse {
 
     public void setNameRes(String nameRes) {
         this.nameRes = nameRes;
-    }
-
-    public List<ProductResponse> getProductsRes() {
-        return productsRes;
-    }
-
-    public void setProductsRes(List<ProductResponse> productsRes) {
-        this.productsRes = productsRes;
     }
 }
