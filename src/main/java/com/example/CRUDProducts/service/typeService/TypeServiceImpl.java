@@ -5,13 +5,13 @@ import com.example.CRUDProducts.mapper.ProductMapper;
 import com.example.CRUDProducts.mapper.TypeMapper;
 import com.example.CRUDProducts.dto.ProductDTO;
 import com.example.CRUDProducts.entity.Type;
+import com.example.CRUDProducts.repository.ProductRepository;
 import com.example.CRUDProducts.repository.TypeRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +21,9 @@ public class TypeServiceImpl implements TypeService {
     private TypeRepository typeRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     private TypeMapper typeMapper;
 
     @Autowired
@@ -28,7 +31,10 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public List<TypeDTO> getAllTypes() {
-        List<Type> types = typeRepository.getAllTypes();
+        List<Type> types = typeRepository.findAllTypes();
+        types.forEach(type -> {
+            type.getProducts().forEach(product -> product.getSubProducts().size());
+        });
         return types.stream()
                 .map(typeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -36,8 +42,13 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public TypeDTO getTypeById(Long id) {
-        Optional<Type> type = typeRepository.getTypeById(id);
-        return type.map(typeMapper::toDTO).orElse(null);
+        Type type = typeRepository.getTypeById(id);
+        if (type != null) {
+            type.getProducts().forEach(product -> product.getSubProducts().size());
+            return typeMapper.toDTO(type);
+        } else {
+            throw new RuntimeException("Type not found");
+        }
     }
 
 

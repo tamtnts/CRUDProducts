@@ -11,11 +11,11 @@ import java.util.Optional;
 @Repository
 public interface TypeRepository extends JpaRepository<Type, Long> {
 
-    @Query("SELECT DISTINCT t FROM Type t LEFT JOIN FETCH t.products p LEFT JOIN FETCH p.subProducts")
-    List<Type> getAllTypes();
+    @Query("SELECT t FROM Type t")
+    List<Type> findAllTypes();
 
-    @Query("SELECT DISTINCT t FROM Type t LEFT JOIN FETCH t.products p LEFT JOIN FETCH p.subProducts WHERE t.id = :id")
-    Optional<Type> getTypeById(Long id);
+    @Query("SELECT DISTINCT t FROM Type t WHERE t.id = :id")
+    Type getTypeById(Long id);
 
 
     boolean existsById(Long id);
@@ -25,4 +25,6 @@ public interface TypeRepository extends JpaRepository<Type, Long> {
     Optional<Type> findByName(String name);
 
     void deleteById(Long id);
+
+
 }

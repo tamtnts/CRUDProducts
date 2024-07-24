@@ -15,16 +15,19 @@ import org.mapstruct.factory.Mappers;
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
+    @Mapping(target = "idDTO", source = "id")
     @Mapping(target = "nameDTO", source = "name")
     @Mapping(target = "typeDTO", source = "type.name")
     @Mapping(target = "listSubProductsDTO", source = "subProducts")
     ProductDTO toDTO(Product product);
 
+    @Mapping(target = "id", source = "idDTO")
     @Mapping(target = "name", source = "nameDTO")
     @Mapping(target = "type", source = "typeDTO", qualifiedByName = "mapStringToType")
     @Mapping(target = "subProducts", source = "listSubProductsDTO")
     Product toEntity(ProductDTO productDTO);
 
+    @Mapping(target = "idRes", source = "idDTO")
     @Mapping(target = "nameRes", source = "nameDTO")
     @Mapping(target = "typeRes", source = "typeDTO")
     @Mapping(target = "subProductsRes", source = "listSubProductsDTO")

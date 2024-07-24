@@ -3,6 +3,7 @@ package com.example.CRUDProducts.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,10 +15,10 @@ public class Product {
 
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id")
     private Type type;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubProduct> subProducts;
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<SubProduct> subProducts = new ArrayList<>();
 }

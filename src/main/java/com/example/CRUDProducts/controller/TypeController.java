@@ -5,7 +5,10 @@ import com.example.CRUDProducts.mapper.TypeMapper;
 import com.example.CRUDProducts.controller.response.TypeResponse;
 import com.example.CRUDProducts.service.typeService.TypeService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +22,8 @@ public class TypeController {
 
     @Autowired
     private TypeMapper typeMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(TypeController.class);
 
     @GetMapping("/all")
     public List<TypeResponse> getAllTypes() {
@@ -35,18 +40,17 @@ public class TypeController {
 
     @PostMapping("/create")
     public TypeResponse createType(@RequestBody @Valid TypeDTO typeDTO) {
-        TypeDTO createdTypeDTO = typeService.createType(typeDTO);
-        return typeMapper.toResponse(createdTypeDTO);
+        return typeMapper.toResponse(typeService.createType(typeDTO));
     }
 
     @PutMapping("/update/{id}")
     public TypeResponse updateType(@PathVariable Long id, @RequestBody @Valid TypeDTO typeDTO) {
-        TypeDTO updatedTypeDTO = typeService.updateType(id, typeDTO);
-        return typeMapper.toResponse(updatedTypeDTO);
+        return typeMapper.toResponse(typeService.updateType(id, typeDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteType(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteType(@PathVariable Long id) {
         typeService.deleteType(id);
+        return ResponseEntity.noContent().build();
     }
 }
