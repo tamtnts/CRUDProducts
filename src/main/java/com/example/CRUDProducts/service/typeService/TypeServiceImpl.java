@@ -1,18 +1,17 @@
 package com.example.CRUDProducts.service.typeService;
 
-import com.example.CRUDProducts.dao.type.TypeDAO;
 import com.example.CRUDProducts.dto.TypeDTO;
 import com.example.CRUDProducts.mapper.ProductMapper;
 import com.example.CRUDProducts.mapper.TypeMapper;
 import com.example.CRUDProducts.dto.ProductDTO;
 import com.example.CRUDProducts.entity.Type;
 import com.example.CRUDProducts.repository.TypeRepository;
-import com.example.CRUDProducts.response.TypeResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,29 +21,27 @@ public class TypeServiceImpl implements TypeService {
     private TypeRepository typeRepository;
 
     @Autowired
-    private TypeDAO typeDAO;
-
-
-    @Autowired
     private TypeMapper typeMapper;
 
     @Autowired
     private ProductMapper productMapper;
 
     @Override
-    public List<TypeResponse> getAllTypes() {
-        return typeDAO.getAllTypes();
+    public List<TypeDTO> getAllTypes() {
+        List<Type> types = typeRepository.getAllTypes();
+        return types.stream()
+                .map(typeMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public TypeResponse getType(Long id) {
-        Type type = typeDAO.getTypeById(id).orElseThrow(() -> new RuntimeException("Type not found"));
-        TypeDTO typeDTO = typeMapper.toDTO(type);
-        return typeMapper.toResponse(typeDTO);
+    public TypeDTO getTypeById(Long id) {
+        Optional<Type> type = typeRepository.getTypeById(id);
+        return type.map(typeMapper::toDTO).orElse(null);
     }
 
     @Override
-    public TypeResponse createType(@Valid TypeDTO typeDTO) {
+    public TypeDTO createType(@Valid TypeDTO typeDTO) {
         Type type = typeMapper.toEntity(typeDTO);
         Type savedType = typeRepository.save(type);
         TypeDTO savedTypeDTO = typeMapper.toDTO(savedType);
@@ -53,11 +50,11 @@ public class TypeServiceImpl implements TypeService {
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
         savedTypeDTO.setProductsDTO(productDTOs);
-        return typeMapper.toResponse(savedTypeDTO);
+        return savedTypeDTO;
     }
 
     @Override
-    public TypeResponse updateType(Long id,@Valid TypeDTO typeDTO) {
+    public TypeDTO updateType(Long id, @Valid TypeDTO typeDTO) {
         if (!typeRepository.existsById(id)) {
             throw new RuntimeException("Type not found with id " + id);
         }
@@ -70,7 +67,7 @@ public class TypeServiceImpl implements TypeService {
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
         updatedTypeDTO.setProductsDTO(productDTOs);
-        return typeMapper.toResponse(updatedTypeDTO);
+        return updatedTypeDTO;
     }
 
     @Override

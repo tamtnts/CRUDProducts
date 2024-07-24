@@ -1,4 +1,4 @@
-package com.example.CRUDProducts.response;
+package com.example.CRUDProducts.controller.response;
 
 import java.util.List;
 

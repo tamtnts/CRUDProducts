@@ -1,6 +1,5 @@
 package com.example.CRUDProducts.service.productService;
 
-import com.example.CRUDProducts.dao.product.ProductDAO;
 import com.example.CRUDProducts.dto.ProductDTO;
 import com.example.CRUDProducts.dto.SubProductDTO;
 import com.example.CRUDProducts.entity.Product;
@@ -9,7 +8,6 @@ import com.example.CRUDProducts.mapper.ProductMapper;
 import com.example.CRUDProducts.mapper.SubProductMapper;
 import com.example.CRUDProducts.repository.ProductRepository;
 import com.example.CRUDProducts.repository.TypeRepository;
-import com.example.CRUDProducts.response.ProductResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,37 +24,30 @@ public class ProductServiceImpl implements ProductService {
     private TypeRepository typeRepository;
 
     @Autowired
-    private ProductDAO productDAO;
-
-    @Autowired
     private ProductMapper productMapper;
 
     @Autowired
     private SubProductMapper subProductMapper;
 
     @Override
-    public List<ProductResponse> getAllProducts() {
-        List<Product> list = productDAO.getAllProducts();
-        List<ProductDTO> listDTO = list.stream()
+    public List<ProductDTO> getAllProducts() {
+        List<Product> list = productRepository.getAllProducts();
+        return list.stream()
                 .map(productMapper::toDTO)
-                .collect(Collectors.toList());
-        return listDTO.stream()
-                .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public ProductResponse getProductById(Long id) {
-        Product product = productDAO.getProductById(id);
+    public ProductDTO getProductById(Long id) {
+        Product product = productRepository.getProductById(id);
         if (product == null) {
             throw new RuntimeException("Product not found");
         }
-        ProductDTO productDTO = productMapper.toDTO(product);
-        return productMapper.toResponse(productDTO);
+        return productMapper.toDTO(product);
     }
 
     @Override
-    public ProductResponse createProduct(@Valid ProductDTO productDTO) {
+    public ProductDTO createProduct(@Valid ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
         Type type = typeRepository.findByName(productDTO.getTypeDTO())
                 .orElseThrow(() -> new RuntimeException("Type not found"));
@@ -68,11 +59,11 @@ public class ProductServiceImpl implements ProductService {
                 .map(subProductMapper::toDTO)
                 .collect(Collectors.toList());
         savedProductDTO.setListSubProductsDTO(subProductDTOs);
-        return productMapper.toResponse(savedProductDTO);
+        return savedProductDTO;
     }
 
     @Override
-    public ProductResponse updateProduct(Long id,@Valid ProductDTO productDTO) {
+    public ProductDTO updateProduct(Long id, @Valid ProductDTO productDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         product.setName(productDTO.getNameDTO());
@@ -86,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(subProductMapper::toDTO)
                 .collect(Collectors.toList());
         updatedProductDTO.setListSubProductsDTO(subProductDTOs);
-        return productMapper.toResponse(updatedProductDTO);
+        return updatedProductDTO;
     }
 
     @Override

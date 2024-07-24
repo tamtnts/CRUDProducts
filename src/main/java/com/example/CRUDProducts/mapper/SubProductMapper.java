@@ -2,7 +2,7 @@ package com.example.CRUDProducts.mapper;
 
 import com.example.CRUDProducts.dto.SubProductDTO;
 import com.example.CRUDProducts.entity.SubProduct;
-import com.example.CRUDProducts.response.SubProductResponse;
+import com.example.CRUDProducts.controller.response.SubProductResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

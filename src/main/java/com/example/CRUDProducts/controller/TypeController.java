@@ -1,15 +1,15 @@
 package com.example.CRUDProducts.controller;
 
 import com.example.CRUDProducts.dto.TypeDTO;
-import com.example.CRUDProducts.exception.ResourceNotFoundException;
-import com.example.CRUDProducts.response.TypeResponse;
+import com.example.CRUDProducts.mapper.TypeMapper;
+import com.example.CRUDProducts.controller.response.TypeResponse;
 import com.example.CRUDProducts.service.typeService.TypeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/types")
@@ -17,32 +17,36 @@ public class TypeController {
     @Autowired
     private TypeService typeService;
 
-    @GetMapping
-    public List<TypeResponse> getAllTypes()throws ResourceNotFoundException {
-        return typeService.getAllTypes();
+    @Autowired
+    private TypeMapper typeMapper;
+
+    @GetMapping("/all")
+    public List<TypeResponse> getAllTypes() {
+        return typeService.getAllTypes()
+                .stream()
+                .map(typeMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TypeResponse> getTypeById(@PathVariable Long id)throws ResourceNotFoundException {
-        TypeResponse typeResponse = typeService.getType(id);
-        return ResponseEntity.ok(typeResponse);
+    public TypeResponse getTypeById(@PathVariable Long id) {
+        return typeMapper.toResponse(typeService.getTypeById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<TypeResponse> createType(@Valid @RequestBody TypeDTO typeDTO)throws ResourceNotFoundException {
-        TypeResponse typeResponse = typeService.createType(typeDTO);
-        return ResponseEntity.ok(typeResponse);
+    @PostMapping("/create")
+    public TypeResponse createType(@RequestBody @Valid TypeDTO typeDTO) {
+        TypeDTO createdTypeDTO = typeService.createType(typeDTO);
+        return typeMapper.toResponse(createdTypeDTO);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<TypeResponse> updateType(@PathVariable Long id, @Valid @RequestBody TypeDTO typeDTO)throws ResourceNotFoundException {
-        TypeResponse typeResponse = typeService.updateType(id, typeDTO);
-        return ResponseEntity.ok(typeResponse);
+    @PutMapping("/update/{id}")
+    public TypeResponse updateType(@PathVariable Long id, @RequestBody @Valid TypeDTO typeDTO) {
+        TypeDTO updatedTypeDTO = typeService.updateType(id, typeDTO);
+        return typeMapper.toResponse(updatedTypeDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteType(@PathVariable Long id)throws ResourceNotFoundException {
+    @DeleteMapping("/delete/{id}")
+    public void deleteType(@PathVariable Long id) {
         typeService.deleteType(id);
-        return ResponseEntity.noContent().build();
     }
 }
