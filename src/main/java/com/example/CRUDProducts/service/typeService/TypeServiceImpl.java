@@ -40,8 +40,12 @@ public class TypeServiceImpl implements TypeService {
         return type.map(typeMapper::toDTO).orElse(null);
     }
 
+
     @Override
     public TypeDTO createType(@Valid TypeDTO typeDTO) {
+        if (typeRepository.existsByName(typeDTO.getNameDTO())) {
+            throw new RuntimeException("Type with name " + typeDTO.getNameDTO() + " already exists");
+        }
         Type type = typeMapper.toEntity(typeDTO);
         Type savedType = typeRepository.save(type);
         TypeDTO savedTypeDTO = typeMapper.toDTO(savedType);
@@ -58,6 +62,13 @@ public class TypeServiceImpl implements TypeService {
         if (!typeRepository.existsById(id)) {
             throw new RuntimeException("Type not found with id " + id);
         }
+
+        Type existingType = typeRepository.findByName(typeDTO.getNameDTO())
+                .orElseThrow(() -> new RuntimeException("Type not found"));
+        if (existingType != null && !existingType.getId().equals(id)) {
+            throw new RuntimeException("Type with name " + typeDTO.getNameDTO() + " already exists");
+        }
+
         typeDTO.setIdDTO(id);
         Type type = typeMapper.toEntity(typeDTO);
         Type updatedType = typeRepository.save(type);

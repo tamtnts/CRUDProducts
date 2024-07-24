@@ -48,17 +48,22 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDTO createProduct(@Valid ProductDTO productDTO) {
+        if (productRepository.findByName(productDTO.getNameDTO()).isPresent()) {
+            throw new RuntimeException("Product with name " + productDTO.getNameDTO() + " already exists");
+        }
         Product product = productMapper.toEntity(productDTO);
         Type type = typeRepository.findByName(productDTO.getTypeDTO())
                 .orElseThrow(() -> new RuntimeException("Type not found"));
         product.setType(type);
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
+
         List<SubProductDTO> subProductDTOs = savedProduct.getSubProducts()
                 .stream()
                 .map(subProductMapper::toDTO)
                 .collect(Collectors.toList());
         savedProductDTO.setListSubProductsDTO(subProductDTOs);
+
         return savedProductDTO;
     }
 
@@ -66,17 +71,23 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO updateProduct(Long id, @Valid ProductDTO productDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (productRepository.existsByNameAndIdNot(productDTO.getNameDTO(), id)) {
+            throw new RuntimeException("Product with name " + productDTO.getNameDTO() + " already exists");
+        }
         product.setName(productDTO.getNameDTO());
         Type type = typeRepository.findByName(productDTO.getTypeDTO())
                 .orElseThrow(() -> new RuntimeException("Type not found"));
         product.setType(type);
         Product updatedProduct = productRepository.save(product);
         ProductDTO updatedProductDTO = productMapper.toDTO(updatedProduct);
+
         List<SubProductDTO> subProductDTOs = updatedProduct.getSubProducts()
                 .stream()
                 .map(subProductMapper::toDTO)
                 .collect(Collectors.toList());
         updatedProductDTO.setListSubProductsDTO(subProductDTOs);
+
         return updatedProductDTO;
     }
 
